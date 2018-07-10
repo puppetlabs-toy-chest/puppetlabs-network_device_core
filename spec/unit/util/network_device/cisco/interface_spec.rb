@@ -68,7 +68,7 @@ describe Puppet::Util::NetworkDevice::Cisco::Interface do
       interface.execute(:ipaddress, [[24, IPAddr.new('192.168.0.1'), nil]])
     end
 
-    it 'executes the block for block commands' do
+    it 'executes the block for block commands with additional arguments' do
       transport.expects(:command).with('ipv6 address fe08::/76 link-local')
       interface.execute(:ipaddress, [[76, IPAddr.new('fe08::'), 'link-local']])
     end

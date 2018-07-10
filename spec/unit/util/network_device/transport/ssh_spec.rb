@@ -199,13 +199,6 @@ describe Puppet::Util::NetworkDevice::Transport::Ssh, if: Puppet.features.ssh? d
       expect(transport.expect(%r{output})).to eq('output')
     end
 
-    it 'returns the output' do
-      IO.stubs(:select)
-      transport.buf = 'output'
-      transport.stubs(:process_ssh)
-      expect(transport.expect(%r{output})).to eq('output')
-    end
-
     describe 'when processing the ssh loop' do
       it 'advances one tick in the ssh event loop and exit on eof' do
         transport.buf = ''
