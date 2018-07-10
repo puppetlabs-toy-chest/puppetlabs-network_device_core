@@ -289,7 +289,7 @@ eos
             status: 'active',
             interfaces: ['FastEthernet0/1', 'FastEthernet0/2'],
             description: 'management',
-            name: '100'
+            name: '100',
           },
           '1' => {
             status: 'active',
@@ -302,13 +302,13 @@ eos
               'FastEthernet0/18', 'FastEthernet0/23', 'FastEthernet0/24'
             ],
             description: 'default',
-            name: '1'
+            name: '1',
           },
           '10' => {
             status: 'active',
             interfaces: [],
             description: 'VLAN0010',
-            name: '10'
+            name: '10',
           }
         )
       end
