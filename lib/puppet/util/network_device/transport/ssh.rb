@@ -11,9 +11,7 @@ class Puppet::Util::NetworkDevice::Transport::Ssh < Puppet::Util::NetworkDevice:
   def initialize(verbose = false)
     super()
     @verbose = verbose
-    unless Puppet.features.ssh?
-      raise _('Connecting with ssh to a network device requires the \'net/ssh\' ruby library')
-    end
+    raise _('Connecting with ssh to a network device requires the \'net/ssh\' ruby library') unless Puppet.features.ssh?
   end
 
   def handles_login?

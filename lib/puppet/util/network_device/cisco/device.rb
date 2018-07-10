@@ -18,10 +18,8 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
   end
 
   def parse_enable(query)
-    if query
-      params = CGI.parse(query)
-      params['enable'].first unless params['enable'].empty?
-    end
+    params = CGI.parse(query) if query
+    params['enable'].first unless params.nil? || params['enable'].empty?
   end
 
   def connect
