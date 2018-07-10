@@ -1,5 +1,6 @@
 require 'puppet/util/network_device'
 
+# IPCalc
 module Puppet::Util::NetworkDevice::IPCalc
   # This is a rip-off of authstore
   Octet = '(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])'.freeze

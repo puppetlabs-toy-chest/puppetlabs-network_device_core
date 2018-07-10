@@ -6,6 +6,7 @@ require 'puppet/util/network_device/cisco/interface'
 require 'puppet/util/network_device/cisco/facts'
 require 'ipaddr'
 
+# Cisco Device
 class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::Base
   include Puppet::Util::NetworkDevice::IPCalc
 

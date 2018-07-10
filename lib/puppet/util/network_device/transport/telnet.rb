@@ -5,6 +5,7 @@ require 'puppet/util/network_device/transport/base'
 if Puppet.features.telnet?
   require 'net/telnet'
 
+  # Telnet class
   class Puppet::Util::NetworkDevice::Transport::Telnet < Puppet::Util::NetworkDevice::Transport::Base
     def initialize(verbose = false)
       super()
