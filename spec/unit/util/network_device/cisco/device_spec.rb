@@ -5,10 +5,11 @@ require 'puppet/util/network_device/transport/telnet'
 
 if Puppet.features.telnet?
   describe Puppet::Util::NetworkDevice::Cisco::Device do
+    let(:transport) { stub_everything 'transport', is_a?: true, command: '' }
+    let(:cisco) { Puppet::Util::NetworkDevice::Cisco::Device.new('telnet://user:password@localhost:23/') }
+
     before(:each) do
-      @transport = stub_everything 'transport', is_a?: true, command: ''
-      @cisco = Puppet::Util::NetworkDevice::Cisco::Device.new('telnet://user:password@localhost:23/')
-      @cisco.transport = @transport
+      cisco.transport = transport
     end
 
     describe 'when creating the device' do
@@ -49,123 +50,123 @@ if Puppet.features.telnet?
       end
 
       it 'finds the debug mode from the options' do
-        Puppet::Util::NetworkDevice::Transport::Telnet.expects(:new).with(true).returns(@transport)
+        Puppet::Util::NetworkDevice::Transport::Telnet.expects(:new).with(true).returns(transport)
         Puppet::Util::NetworkDevice::Cisco::Device.new('telnet://user:password@localhost:23', debug: true)
       end
 
       it 'sets the debug mode to nil by default' do
-        Puppet::Util::NetworkDevice::Transport::Telnet.expects(:new).with(nil).returns(@transport)
+        Puppet::Util::NetworkDevice::Transport::Telnet.expects(:new).with(nil).returns(transport)
         Puppet::Util::NetworkDevice::Cisco::Device.new('telnet://user:password@localhost:23')
       end
     end
 
     describe 'when connecting to the physical device' do
       it 'connects to the transport' do
-        @transport.expects(:connect)
-        @cisco.command
+        transport.expects(:connect)
+        cisco.command
       end
 
       it 'attempts to login' do
-        @cisco.expects(:login)
-        @cisco.command
+        cisco.expects(:login)
+        cisco.command
       end
 
       it 'tells the device to not page' do
-        @transport.expects(:command).with('terminal length 0')
-        @cisco.command
+        transport.expects(:command).with('terminal length 0')
+        cisco.command
       end
 
       it 'enters the enable password if returned prompt is not privileged' do
-        @transport.stubs(:command).yields('Switch>').returns('')
-        @cisco.expects(:enable)
-        @cisco.command
+        transport.stubs(:command).yields('Switch>').returns('')
+        cisco.expects(:enable)
+        cisco.command
       end
 
       it 'finds device capabilities' do
-        @cisco.expects(:find_capabilities)
-        @cisco.command
+        cisco.expects(:find_capabilities)
+        cisco.command
       end
 
       it 'executes given command' do
-        @transport.expects(:command).with('mycommand')
-        @cisco.command('mycommand')
+        transport.expects(:command).with('mycommand')
+        cisco.command('mycommand')
       end
 
       it 'yields to the command block if one is provided' do
-        @transport.expects(:command).with('mycommand')
-        @cisco.command do |c|
+        transport.expects(:command).with('mycommand')
+        cisco.command do |c|
           c.command('mycommand')
         end
       end
 
       it 'closes the device transport' do
-        @transport.expects(:close)
-        @cisco.command
+        transport.expects(:close)
+        cisco.command
       end
 
       describe 'when login in' do
         it 'does not login if transport handles login' do
-          @transport.expects(:handles_login?).returns(true)
-          @transport.expects(:command).never
-          @transport.expects(:expect).never
-          @cisco.login
+          transport.expects(:handles_login?).returns(true)
+          transport.expects(:command).never
+          transport.expects(:expect).never
+          cisco.login
         end
 
         it 'sends username if one has been provided' do
-          @transport.expects(:command).with('user', prompt: %r{^Password:})
-          @cisco.login
+          transport.expects(:command).with('user', prompt: %r{^Password:})
+          cisco.login
         end
 
         it 'sends password after the username' do
-          @transport.expects(:command).with('user', prompt: %r{^Password:})
-          @transport.expects(:command).with('password')
-          @cisco.login
+          transport.expects(:command).with('user', prompt: %r{^Password:})
+          transport.expects(:command).with('password')
+          cisco.login
         end
 
         it 'expects the Password: prompt if no user was sent' do
-          @cisco.url.user = ''
-          @transport.expects(:expect).with(%r{^Password:})
-          @transport.expects(:command).with('password')
-          @cisco.login
+          cisco.url.user = ''
+          transport.expects(:expect).with(%r{^Password:})
+          transport.expects(:command).with('password')
+          cisco.login
         end
       end
 
       describe 'when entering enable password' do
         it 'raises an error if no enable password has been set' do
-          @cisco.enable_password = nil
-          expect { @cisco.enable }.to raise_error(RuntimeError, %r{Can't issue "enable" to enter privileged})
+          cisco.enable_password = nil
+          expect { cisco.enable }.to raise_error(RuntimeError, %r{Can't issue "enable" to enter privileged})
         end
 
         it 'sends the enable command and expect an enable prompt' do
-          @cisco.enable_password = 'mypass'
-          @transport.expects(:command).with('enable', prompt: %r{^Password:})
-          @cisco.enable
+          cisco.enable_password = 'mypass'
+          transport.expects(:command).with('enable', prompt: %r{^Password:})
+          cisco.enable
         end
 
         it 'sends the enable password' do
-          @cisco.enable_password = 'mypass'
-          @transport.stubs(:command).with('enable', prompt: %r{^Password:})
-          @transport.expects(:command).with('mypass')
-          @cisco.enable
+          cisco.enable_password = 'mypass'
+          transport.stubs(:command).with('enable', prompt: %r{^Password:})
+          transport.expects(:command).with('mypass')
+          cisco.enable
         end
       end
     end
 
     describe 'when finding network device capabilities' do
       it 'tries to execute sh vlan brief' do
-        @transport.expects(:command).with('sh vlan brief').returns('')
-        @cisco.find_capabilities
+        transport.expects(:command).with('sh vlan brief').returns('')
+        cisco.find_capabilities
       end
 
       it 'detects errors' do
-        @transport.stubs(:command).with('sh vlan brief').returns(<<eos)
+        transport.stubs(:command).with('sh vlan brief').returns(<<eos)
 Switch#sh vlan brief
 % Ambiguous command:  "sh vlan brief"
 Switch#
 eos
 
-        @cisco.find_capabilities
-        expect(@cisco).not_to be_support_vlan_brief
+        cisco.find_capabilities
+        expect(cisco).not_to be_support_vlan_brief
       end
     end
 
@@ -182,60 +183,60 @@ eos
       'VLAN99' => 'VLAN99',
     }.each do |input, expected|
       it "should canonicalize #{input} to #{expected}" do
-        expect(@cisco.canonicalize_ifname(input)).to eq(expected)
+        expect(cisco.canonicalize_ifname(input)).to eq(expected)
       end
     end
 
     describe 'when updating device vlans' do
       describe 'when removing a vlan' do
         it 'issues the no vlan command' do
-          @transport.expects(:command).with('no vlan 200')
-          @cisco.update_vlan('200', { ensure: :present, name: '200' }, ensure: :absent)
+          transport.expects(:command).with('no vlan 200')
+          cisco.update_vlan('200', { ensure: :present, name: '200' }, ensure: :absent)
         end
       end
 
       describe 'when updating a vlan' do
         it 'issues the vlan command to enter global vlan modifications' do
-          @transport.expects(:command).with('vlan 200')
-          @cisco.update_vlan('200', { ensure: :present, name: '200' }, ensure: :present, name: '200')
+          transport.expects(:command).with('vlan 200')
+          cisco.update_vlan('200', { ensure: :present, name: '200' }, ensure: :present, name: '200')
         end
 
         it 'issues the name command to modify the vlan description' do
-          @transport.expects(:command).with('name myvlan')
-          @cisco.update_vlan('200', { ensure: :present, name: '200' }, ensure: :present, name: '200', description: 'myvlan')
+          transport.expects(:command).with('name myvlan')
+          cisco.update_vlan('200', { ensure: :present, name: '200' }, ensure: :present, name: '200', description: 'myvlan')
         end
       end
     end
 
     describe 'when parsing interface' do
       it 'parses interface output' do
-        @cisco.expects(:parse_interface).returns(ensure: :present)
+        cisco.expects(:parse_interface).returns(ensure: :present)
 
-        expect(@cisco.interface('FastEthernet0/1')).to eq(ensure: :present)
+        expect(cisco.interface('FastEthernet0/1')).to eq(ensure: :present)
       end
 
       it 'parses trunking and merge results' do
-        @cisco.stubs(:parse_interface).returns(ensure: :present)
-        @cisco.expects(:parse_trunking).returns(native_vlan: '100')
+        cisco.stubs(:parse_interface).returns(ensure: :present)
+        cisco.expects(:parse_trunking).returns(native_vlan: '100')
 
-        expect(@cisco.interface('FastEthernet0/1')).to eq(ensure: :present, native_vlan: '100')
+        expect(cisco.interface('FastEthernet0/1')).to eq(ensure: :present, native_vlan: '100')
       end
 
       it 'returns an absent interface if parse_interface returns nothing' do
-        @cisco.stubs(:parse_interface).returns({})
+        cisco.stubs(:parse_interface).returns({})
 
-        expect(@cisco.interface('FastEthernet0/1')).to eq(ensure: :absent)
+        expect(cisco.interface('FastEthernet0/1')).to eq(ensure: :absent)
       end
 
       it 'parses ip address information and merge results' do
-        @cisco.stubs(:parse_interface).returns(ensure: :present)
-        @cisco.expects(:parse_interface_config).returns(ipaddress: [24, IPAddr.new('192.168.0.24'), nil])
+        cisco.stubs(:parse_interface).returns(ensure: :present)
+        cisco.expects(:parse_interface_config).returns(ipaddress: [24, IPAddr.new('192.168.0.24'), nil])
 
-        expect(@cisco.interface('FastEthernet0/1')).to eq(ensure: :present, ipaddress: [24, IPAddr.new('192.168.0.24'), nil])
+        expect(cisco.interface('FastEthernet0/1')).to eq(ensure: :present, ipaddress: [24, IPAddr.new('192.168.0.24'), nil])
       end
 
       it 'parses the sh interface command' do
-        @transport.stubs(:command).with('sh interface FastEthernet0/1').returns(<<eos)
+        transport.stubs(:command).with('sh interface FastEthernet0/1').returns(<<eos)
 Switch#sh interfaces FastEthernet 0/1
 FastEthernet0/1 is down, line protocol is down
   Hardware is Fast Ethernet, address is 00d0.bbe2.19c1 (bia 00d0.bbe2.19c1)
@@ -264,12 +265,12 @@ FastEthernet0/1 is down, line protocol is down
 Switch#
 eos
 
-        expect(@cisco.parse_interface('FastEthernet0/1')).to eq(ensure: :absent, duplex: :auto, speed: :auto)
+        expect(cisco.parse_interface('FastEthernet0/1')).to eq(ensure: :absent, duplex: :auto, speed: :auto)
       end
 
       it 'is able to parse the sh vlan brief command output' do
-        @cisco.stubs(:support_vlan_brief?).returns(true)
-        @transport.stubs(:command).with('sh vlan brief').returns(<<eos)
+        cisco.stubs(:support_vlan_brief?).returns(true)
+        transport.stubs(:command).with('sh vlan brief').returns(<<eos)
 Switch#sh vlan brief
 VLAN Name                             Status    Ports
 ---- -------------------------------- --------- -------------------------------
@@ -283,11 +284,11 @@ VLAN Name                             Status    Ports
 Switch#
 eos
 
-        expect(@cisco.parse_vlans).to eq('100' => { status: 'active', interfaces: ['FastEthernet0/1', 'FastEthernet0/2'], description: 'management', name: '100' }, '1' => { status: 'active', interfaces: ['FastEthernet0/3', 'FastEthernet0/4', 'FastEthernet0/5', 'FastEthernet0/6', 'FastEthernet0/7', 'FastEthernet0/8', 'FastEthernet0/9', 'FastEthernet0/10', 'FastEthernet0/11', 'FastEthernet0/12', 'FastEthernet0/13', 'FastEthernet0/14', 'FastEthernet0/15', 'FastEthernet0/16', 'FastEthernet0/17', 'FastEthernet0/18', 'FastEthernet0/23', 'FastEthernet0/24'], description: 'default', name: '1' }, '10' => { status: 'active', interfaces: [], description: 'VLAN0010', name: '10' })
+        expect(cisco.parse_vlans).to eq('100' => { status: 'active', interfaces: ['FastEthernet0/1', 'FastEthernet0/2'], description: 'management', name: '100' }, '1' => { status: 'active', interfaces: ['FastEthernet0/3', 'FastEthernet0/4', 'FastEthernet0/5', 'FastEthernet0/6', 'FastEthernet0/7', 'FastEthernet0/8', 'FastEthernet0/9', 'FastEthernet0/10', 'FastEthernet0/11', 'FastEthernet0/12', 'FastEthernet0/13', 'FastEthernet0/14', 'FastEthernet0/15', 'FastEthernet0/16', 'FastEthernet0/17', 'FastEthernet0/18', 'FastEthernet0/23', 'FastEthernet0/24'], description: 'default', name: '1' }, '10' => { status: 'active', interfaces: [], description: 'VLAN0010', name: '10' })
       end
 
       it 'parses trunk switchport information' do
-        @transport.stubs(:command).with('sh interface FastEthernet0/21 switchport').returns(<<eos)
+        transport.stubs(:command).with('sh interface FastEthernet0/21 switchport').returns(<<eos)
 Switch#sh interfaces FastEthernet 0/21 switchport
 Name: Fa0/21
 Switchport: Enabled
@@ -310,11 +311,11 @@ Self Loopback: No
 Switch#
 eos
 
-        expect(@cisco.parse_trunking('FastEthernet0/21')).to eq(mode: :trunk, encapsulation: :dot1q, native_vlan: '1', allowed_trunk_vlans: :all)
+        expect(cisco.parse_trunking('FastEthernet0/21')).to eq(mode: :trunk, encapsulation: :dot1q, native_vlan: '1', allowed_trunk_vlans: :all)
       end
 
       it 'parses dynamic desirable switchport information with native and allowed vlans' do
-        @transport.stubs(:command).with('sh interface GigabitEthernet 0/1 switchport').returns(<<eos)
+        transport.stubs(:command).with('sh interface GigabitEthernet 0/1 switchport').returns(<<eos)
 c2960#sh interfaces GigabitEthernet 0/1 switchport
 Name: Gi0/1
 Switchport: Enabled
@@ -348,11 +349,11 @@ Appliance trust: none
 c2960#
 eos
 
-        expect(@cisco.parse_trunking('GigabitEthernet 0/1')).to eq(mode: 'dynamic desirable', encapsulation: :dot1q, access_vlan: '100', native_vlan: '1', allowed_trunk_vlans: '1,99')
+        expect(cisco.parse_trunking('GigabitEthernet 0/1')).to eq(mode: 'dynamic desirable', encapsulation: :dot1q, access_vlan: '100', native_vlan: '1', allowed_trunk_vlans: '1,99')
       end
 
       it 'parses access switchport information' do
-        @transport.stubs(:command).with('sh interface FastEthernet0/1 switchport').returns(<<eos)
+        transport.stubs(:command).with('sh interface FastEthernet0/1 switchport').returns(<<eos)
 Switch#sh interfaces FastEthernet 0/1 switchport
 Name: Fa0/1
 Switchport: Enabled
@@ -374,11 +375,11 @@ Self Loopback: No
 Switch#
 eos
 
-        expect(@cisco.parse_trunking('FastEthernet0/1')).to eq(mode: :access, access_vlan: '100', native_vlan: '1')
+        expect(cisco.parse_trunking('FastEthernet0/1')).to eq(mode: :access, access_vlan: '100', native_vlan: '1')
       end
 
       it 'parses auto/negotiate switchport information' do
-        @transport.stubs(:command).with('sh interface FastEthernet0/24 switchport').returns(<<eos)
+        transport.stubs(:command).with('sh interface FastEthernet0/24 switchport').returns(<<eos)
 Switch#sh interfaces FastEthernet 0/24 switchport
 Name: Fa0/24
 Switchport: Enabled
@@ -410,11 +411,11 @@ Unknown multicast blocked: disabled
 Appliance trust: none
 eos
 
-        expect(@cisco.parse_trunking('FastEthernet0/24')).to eq(mode: 'dynamic auto', encapsulation: :negotiate, allowed_trunk_vlans: :all, access_vlan: '1', native_vlan: '2')
+        expect(cisco.parse_trunking('FastEthernet0/24')).to eq(mode: 'dynamic auto', encapsulation: :negotiate, allowed_trunk_vlans: :all, access_vlan: '1', native_vlan: '2')
       end
 
       it 'parses ip addresses' do
-        @transport.stubs(:command).with('sh running-config interface Vlan 1 | begin interface').returns(<<eos)
+        transport.stubs(:command).with('sh running-config interface Vlan 1 | begin interface').returns(<<eos)
 router#sh running-config interface Vlan 1 | begin interface
 interface Vlan1
  description $ETH-SW-LAUNCH$$INTF-INFO-HWIC 4ESW$$FW_INSIDE$
@@ -441,13 +442,13 @@ end
 
 router#
 eos
-        expect(@cisco.parse_interface_config('Vlan 1')).to eq(ipaddress: [[24, IPAddr.new('192.168.0.24'), 'secondary'],
+        expect(cisco.parse_interface_config('Vlan 1')).to eq(ipaddress: [[24, IPAddr.new('192.168.0.24'), 'secondary'],
                                                                           [24, IPAddr.new('192.168.0.1'), nil],
                                                                           [64, IPAddr.new('2001:07a8:71c1::'), 'eui-64']])
       end
 
       it 'parses etherchannel membership' do
-        @transport.stubs(:command).with('sh running-config interface Gi0/17 | begin interface').returns(<<eos)
+        transport.stubs(:command).with('sh running-config interface Gi0/17 | begin interface').returns(<<eos)
 c2960#sh running-config interface Gi0/17 | begin interface
 interface GigabitEthernet0/17
  description member of Po1
@@ -460,7 +461,7 @@ end
 
 c2960#
 eos
-        expect(@cisco.parse_interface_config('Gi0/17')).to eq(etherchannel: '1')
+        expect(cisco.parse_interface_config('Gi0/17')).to eq(etherchannel: '1')
       end
     end
 
@@ -471,7 +472,7 @@ eos
 
         facts.expects(:retrieve).returns(:facts)
 
-        expect(@cisco.facts).to eq(:facts)
+        expect(cisco.facts).to eq(:facts)
       end
     end
   end

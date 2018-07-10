@@ -4,10 +4,8 @@ require 'puppet/util/network_device'
 require 'puppet/util/network_device/cisco/facts'
 
 describe Puppet::Util::NetworkDevice::Cisco::Facts do
-  before(:each) do
-    @transport = stub_everything 'transport'
-    @facts = described_class.new(@transport)
-  end
+  let(:transport) { stub_everything 'transport' }
+  let(:facts) { described_class.new(transport) }
 
   {
     'cisco WS-C2924C-XL (PowerPC403GA) processor (revision 0x11) with 8192K/1024K bytes of memory.' => { hardwaremodel: 'WS-C2924C-XL', memorysize: '8192K', processor: 'PowerPC403GA', hardwarerevision: '0x11' },
@@ -17,12 +15,12 @@ describe Puppet::Util::NetworkDevice::Cisco::Facts do
     'cisco WS-C2950T-24 (RC32300) processor (revision R0) with 19959K bytes of memory.' => { hardwaremodel: 'WS-C2950T-24', memorysize: '19959K', processor: 'RC32300', hardwarerevision: 'R0' },
   }.each do |ver, expected|
     it 'parses show ver output for hardware device facts' do
-      @transport.stubs(:command).with('sh ver').returns(<<eos)
+      transport.stubs(:command).with('sh ver').returns(<<eos)
 Switch>sh ver
 #{ver}
 Switch>
 eos
-      expect(@facts.parse_show_ver).to eq(expected)
+      expect(facts.parse_show_ver).to eq(expected)
     end
   end
 
@@ -35,12 +33,12 @@ eos
     'c2950 uptime is 2 years, 20 weeks, 6 minutes' => { hostname: 'c2950', uptime: '2 years, 20 weeks, 6 minutes', uptime_seconds: 75_168_360, uptime_days: 870 },
   }.each do |ver, expected|
     it 'parses show ver output for device uptime facts' do
-      @transport.stubs(:command).with('sh ver').returns(<<eos)
+      transport.stubs(:command).with('sh ver').returns(<<eos)
 Switch>sh ver
 #{ver}
 Switch>
 eos
-      expect(@facts.parse_show_ver).to eq(expected)
+      expect(facts.parse_show_ver).to eq(expected)
     end
   end
 
@@ -52,12 +50,12 @@ eos
     'Cisco IOS Software, 1841 Software (C1841-ADVSECURITYK9-M), Version 12.4(24)T4, RELEASE SOFTWARE (fc2)' => { operatingsystem: 'IOS', operatingsystemrelease: '12.4(24)T4', operatingsystemmajrelease: '12.4T', operatingsystemfeature: 'ADVSECURITYK9' },
   }.each do |ver, expected|
     it 'parses show ver output for device software version facts' do
-      @transport.stubs(:command).with('sh ver').returns(<<eos)
+      transport.stubs(:command).with('sh ver').returns(<<eos)
 Switch>sh ver
 #{ver}
 Switch>
 eos
-      expect(@facts.parse_show_ver).to eq(expected)
+      expect(facts.parse_show_ver).to eq(expected)
     end
   end
 end

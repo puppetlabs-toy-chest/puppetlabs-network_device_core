@@ -24,9 +24,10 @@ describe Puppet::Type.type(:interface) do
   end
 
   describe 'when validating attribute values' do
+    let(:provider) { stub 'provider', class: Puppet::Type.type(:interface).defaultprovider, clear: nil }
+
     before(:each) do
-      @provider = stub 'provider', class: Puppet::Type.type(:interface).defaultprovider, clear: nil
-      Puppet::Type.type(:interface).defaultprovider.stubs(:new).returns(@provider)
+      Puppet::Type.type(:interface).defaultprovider.stubs(:new).returns(provider)
     end
 
     it 'supports :present as a value to :ensure' do

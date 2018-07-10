@@ -22,9 +22,10 @@ describe Puppet::Type.type(:vlan) do
   end
 
   describe 'when validating attribute values' do
+    let(:provider) { stub 'provider', class: Puppet::Type.type(:vlan).defaultprovider, clear: nil }
+
     before(:each) do
-      @provider = stub 'provider', class: Puppet::Type.type(:vlan).defaultprovider, clear: nil
-      Puppet::Type.type(:vlan).defaultprovider.stubs(:new).returns(@provider)
+      Puppet::Type.type(:vlan).defaultprovider.stubs(:new).returns(provider)
     end
 
     it 'supports :present as a value to :ensure' do
