@@ -43,11 +43,16 @@ class Puppet::Util::NetworkDevice::Cisco::Facts
         facts[:uptime] = Regexp.last_match(2)
         facts[:uptime_seconds] = uptime_to_seconds(Regexp.last_match(2))
         facts[:uptime_days] = facts[:uptime_seconds] / 86_400
-      # "IOS (tm) C2900XL Software (C2900XL-C3H2S-M), Version 12.0(5)WC10, RELEASE SOFTWARE (fc1)"=> { :operatingsystem => "IOS", :operatingsystemrelease => "12.0(5)WC10", :operatingsystemmajrelease => "12.0", :operatingsystemfeature => "C3H2S"},
-      # "IOS (tm) C2950 Software (C2950-I6K2L2Q4-M), Version 12.1(22)EA8a, RELEASE SOFTWARE (fc1)"=> { :operatingsystem => "IOS", :operatingsystemrelease => "12.1(22)EA8a", :operatingsystemmajrelease => "12.1", :operatingsystemfeature => "I6K2L2Q4"},
-      # "Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 12.2(44)SE, RELEASE SOFTWARE (fc1)"=>{ :operatingsystem => "IOS", :operatingsystemrelease => "12.2(44)SE", :operatingsystemmajrelease => "12.2", :operatingsystemfeature => "LANBASEK9"},
-      # "Cisco IOS Software, C870 Software (C870-ADVIPSERVICESK9-M), Version 12.4(11)XJ4, RELEASE SOFTWARE (fc2)"=>{ :operatingsystem => "IOS", :operatingsystemrelease => "12.4(11)XJ40", :operatingsystemmajrelease => "12.4XJ", :operatingsystemfeature => "ADVIPSERVICESK9"},
-      # "Cisco IOS Software, 1841 Software (C1841-ADVSECURITYK9-M), Version 12.4(24)T4, RELEASE SOFTWARE (fc2)" =>{ :operatingsystem => "IOS", :operatingsystemrelease => "12.4(24)T4", :operatingsystemmajrelease => "12.4T", :operatingsystemfeature => "ADVSECURITYK9"},
+      # "IOS (tm) C2900XL Software (C2900XL-C3H2S-M), Version 12.0(5)WC10, RELEASE SOFTWARE (fc1)"=>
+      #   { :operatingsystem => "IOS", :operatingsystemrelease => "12.0(5)WC10", :operatingsystemmajrelease => "12.0", :operatingsystemfeature => "C3H2S"},
+      # "IOS (tm) C2950 Software (C2950-I6K2L2Q4-M), Version 12.1(22)EA8a, RELEASE SOFTWARE (fc1)"=>
+      #   { :operatingsystem => "IOS", :operatingsystemrelease => "12.1(22)EA8a", :operatingsystemmajrelease => "12.1", :operatingsystemfeature => "I6K2L2Q4"},
+      # "Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 12.2(44)SE, RELEASE SOFTWARE (fc1)"=>
+      #   { :operatingsystem => "IOS", :operatingsystemrelease => "12.2(44)SE", :operatingsystemmajrelease => "12.2", :operatingsystemfeature => "LANBASEK9"},
+      # "Cisco IOS Software, C870 Software (C870-ADVIPSERVICESK9-M), Version 12.4(11)XJ4, RELEASE SOFTWARE (fc2)"=>
+      #   { :operatingsystem => "IOS", :operatingsystemrelease => "12.4(11)XJ40", :operatingsystemmajrelease => "12.4XJ", :operatingsystemfeature => "ADVIPSERVICESK9"},
+      # "Cisco IOS Software, 1841 Software (C1841-ADVSECURITYK9-M), Version 12.4(24)T4, RELEASE SOFTWARE (fc2)" =>
+      #   { :operatingsystem => "IOS", :operatingsystemrelease => "12.4(24)T4", :operatingsystemmajrelease => "12.4T", :operatingsystemfeature => "ADVSECURITYK9"},
       when %r{(?:Cisco )?(IOS)\s*(?:\(tm\) |Software, )?(?:\w+)\s+Software\s+\(\w+-(\w+)-\w+\), Version ([0-9.()A-Za-z]+),}
         facts[:operatingsystem] = Regexp.last_match(1)
         facts[:operatingsystemrelease] = Regexp.last_match(3)

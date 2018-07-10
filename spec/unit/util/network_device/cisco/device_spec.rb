@@ -284,7 +284,33 @@ VLAN Name                             Status    Ports
 Switch#
 eos
 
-        expect(cisco.parse_vlans).to eq('100' => { status: 'active', interfaces: ['FastEthernet0/1', 'FastEthernet0/2'], description: 'management', name: '100' }, '1' => { status: 'active', interfaces: ['FastEthernet0/3', 'FastEthernet0/4', 'FastEthernet0/5', 'FastEthernet0/6', 'FastEthernet0/7', 'FastEthernet0/8', 'FastEthernet0/9', 'FastEthernet0/10', 'FastEthernet0/11', 'FastEthernet0/12', 'FastEthernet0/13', 'FastEthernet0/14', 'FastEthernet0/15', 'FastEthernet0/16', 'FastEthernet0/17', 'FastEthernet0/18', 'FastEthernet0/23', 'FastEthernet0/24'], description: 'default', name: '1' }, '10' => { status: 'active', interfaces: [], description: 'VLAN0010', name: '10' })
+        expect(cisco.parse_vlans).to eq(
+          '100' => {
+            status: 'active',
+            interfaces: ['FastEthernet0/1', 'FastEthernet0/2'],
+            description: 'management',
+            name: '100'
+          },
+          '1' => {
+            status: 'active',
+            interfaces: [
+              'FastEthernet0/3', 'FastEthernet0/4', 'FastEthernet0/5',
+              'FastEthernet0/6', 'FastEthernet0/7', 'FastEthernet0/8',
+              'FastEthernet0/9', 'FastEthernet0/10', 'FastEthernet0/11',
+              'FastEthernet0/12', 'FastEthernet0/13', 'FastEthernet0/14',
+              'FastEthernet0/15', 'FastEthernet0/16', 'FastEthernet0/17',
+              'FastEthernet0/18', 'FastEthernet0/23', 'FastEthernet0/24'
+            ],
+            description: 'default',
+            name: '1'
+          },
+          '10' => {
+            status: 'active',
+            interfaces: [],
+            description: 'VLAN0010',
+            name: '10'
+          }
+        )
       end
 
       it 'parses trunk switchport information' do

@@ -8,11 +8,21 @@ describe Puppet::Util::NetworkDevice::Cisco::Facts do
   let(:facts) { described_class.new(transport) }
 
   {
-    'cisco WS-C2924C-XL (PowerPC403GA) processor (revision 0x11) with 8192K/1024K bytes of memory.' => { hardwaremodel: 'WS-C2924C-XL', memorysize: '8192K', processor: 'PowerPC403GA', hardwarerevision: '0x11' },
-    'Cisco 1841 (revision 5.0) with 355328K/37888K bytes of memory.' => { hardwaremodel: '1841', memorysize: '355328K', hardwarerevision: '5.0' },
-    'Cisco 877 (MPC8272) processor (revision 0x200) with 118784K/12288K bytes of memory.' => { hardwaremodel: '877', memorysize: '118784K', processor: 'MPC8272', hardwarerevision: '0x200' },
-    'cisco WS-C2960G-48TC-L (PowerPC405) processor (revision C0) with 61440K/4088K bytes of memory.' => { hardwaremodel: 'WS-C2960G-48TC-L', memorysize: '61440K', processor: 'PowerPC405', hardwarerevision: 'C0' },
-    'cisco WS-C2950T-24 (RC32300) processor (revision R0) with 19959K bytes of memory.' => { hardwaremodel: 'WS-C2950T-24', memorysize: '19959K', processor: 'RC32300', hardwarerevision: 'R0' },
+    'cisco WS-C2924C-XL (PowerPC403GA) processor (revision 0x11) with 8192K/1024K bytes of memory.' => {
+      hardwaremodel: 'WS-C2924C-XL', memorysize: '8192K', processor: 'PowerPC403GA', hardwarerevision: '0x11'
+    },
+    'Cisco 1841 (revision 5.0) with 355328K/37888K bytes of memory.' => {
+      hardwaremodel: '1841', memorysize: '355328K', hardwarerevision: '5.0'
+    },
+    'Cisco 877 (MPC8272) processor (revision 0x200) with 118784K/12288K bytes of memory.' => {
+      hardwaremodel: '877', memorysize: '118784K', processor: 'MPC8272', hardwarerevision: '0x200'
+    },
+    'cisco WS-C2960G-48TC-L (PowerPC405) processor (revision C0) with 61440K/4088K bytes of memory.' => {
+      hardwaremodel: 'WS-C2960G-48TC-L', memorysize: '61440K', processor: 'PowerPC405', hardwarerevision: 'C0'
+    },
+    'cisco WS-C2950T-24 (RC32300) processor (revision R0) with 19959K bytes of memory.' => {
+      hardwaremodel: 'WS-C2950T-24', memorysize: '19959K', processor: 'RC32300', hardwarerevision: 'R0'
+    },
   }.each do |ver, expected|
     it 'parses show ver output for hardware device facts' do
       transport.stubs(:command).with('sh ver').returns(<<eos)
@@ -43,11 +53,21 @@ eos
   end
 
   {
-    'IOS (tm) C2900XL Software (C2900XL-C3H2S-M), Version 12.0(5)WC10, RELEASE SOFTWARE (fc1)' => { operatingsystem: 'IOS', operatingsystemrelease: '12.0(5)WC10', operatingsystemmajrelease: '12.0WC', operatingsystemfeature: 'C3H2S' },
-    'IOS (tm) C2950 Software (C2950-I6K2L2Q4-M), Version 12.1(22)EA8a, RELEASE SOFTWARE (fc1)' => { operatingsystem: 'IOS', operatingsystemrelease: '12.1(22)EA8a', operatingsystemmajrelease: '12.1EA', operatingsystemfeature: 'I6K2L2Q4' },
-    'Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 12.2(44)SE, RELEASE SOFTWARE (fc1)' => { operatingsystem: 'IOS', operatingsystemrelease: '12.2(44)SE', operatingsystemmajrelease: '12.2SE', operatingsystemfeature: 'LANBASEK9' },
-    'Cisco IOS Software, C870 Software (C870-ADVIPSERVICESK9-M), Version 12.4(11)XJ4, RELEASE SOFTWARE (fc2)' => { operatingsystem: 'IOS', operatingsystemrelease: '12.4(11)XJ4', operatingsystemmajrelease: '12.4XJ', operatingsystemfeature: 'ADVIPSERVICESK9' },
-    'Cisco IOS Software, 1841 Software (C1841-ADVSECURITYK9-M), Version 12.4(24)T4, RELEASE SOFTWARE (fc2)' => { operatingsystem: 'IOS', operatingsystemrelease: '12.4(24)T4', operatingsystemmajrelease: '12.4T', operatingsystemfeature: 'ADVSECURITYK9' },
+    'IOS (tm) C2900XL Software (C2900XL-C3H2S-M), Version 12.0(5)WC10, RELEASE SOFTWARE (fc1)' => {
+      operatingsystem: 'IOS', operatingsystemrelease: '12.0(5)WC10', operatingsystemmajrelease: '12.0WC', operatingsystemfeature: 'C3H2S'
+    },
+    'IOS (tm) C2950 Software (C2950-I6K2L2Q4-M), Version 12.1(22)EA8a, RELEASE SOFTWARE (fc1)' => {
+      operatingsystem: 'IOS', operatingsystemrelease: '12.1(22)EA8a', operatingsystemmajrelease: '12.1EA', operatingsystemfeature: 'I6K2L2Q4'
+    },
+    'Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 12.2(44)SE, RELEASE SOFTWARE (fc1)' => {
+      operatingsystem: 'IOS', operatingsystemrelease: '12.2(44)SE', operatingsystemmajrelease: '12.2SE', operatingsystemfeature: 'LANBASEK9'
+    },
+    'Cisco IOS Software, C870 Software (C870-ADVIPSERVICESK9-M), Version 12.4(11)XJ4, RELEASE SOFTWARE (fc2)' => {
+      operatingsystem: 'IOS', operatingsystemrelease: '12.4(11)XJ4', operatingsystemmajrelease: '12.4XJ', operatingsystemfeature: 'ADVIPSERVICESK9'
+    },
+    'Cisco IOS Software, 1841 Software (C1841-ADVSECURITYK9-M), Version 12.4(24)T4, RELEASE SOFTWARE (fc2)' => {
+      operatingsystem: 'IOS', operatingsystemrelease: '12.4(24)T4', operatingsystemmajrelease: '12.4T', operatingsystemfeature: 'ADVSECURITYK9'
+    },
   }.each do |ver, expected|
     it 'parses show ver output for device software version facts' do
       transport.stubs(:command).with('sh ver').returns(<<eos)
