@@ -309,7 +309,7 @@ eos
             interfaces: [],
             description: 'VLAN0010',
             name: '10',
-          }
+          },
         )
       end
 
