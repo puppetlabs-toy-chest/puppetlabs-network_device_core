@@ -7,7 +7,6 @@ require 'puppet/util/network_device/cisco/facts'
 require 'ipaddr'
 
 class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::Base
-
   include Puppet::Util::NetworkDevice::IPCalc
 
   attr_accessor :enable_password
@@ -15,7 +14,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
   def initialize(url, options = {})
     super(url, options)
     @enable_password = options[:enable_password] || parse_enable(@url.query)
-    transport.default_prompt = /[#>]\s?\z/n
+    transport.default_prompt = %r{[#>]\s?\z}n
   end
 
   def parse_enable(query)
@@ -28,8 +27,8 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
   def connect
     transport.connect
     login
-    transport.command("terminal length 0") do |out|
-      enable if out =~ />\s?\z/n
+    transport.command('terminal length 0') do |out|
+      enable if out =~ %r{>\s?\z}n
     end
     find_capabilities
   end
@@ -48,9 +47,9 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
 
   def execute(cmd)
     transport.command(cmd) do |out|
-      if out =~ /^%/mo or out =~ /^Command rejected:/mo
+      if out =~ %r{^%}mo || out =~ %r{^Command rejected:}mo
         # strip off the command just sent
-        error = out.sub(cmd,'')
+        error = out.sub(cmd, '')
         Puppet.err _("Error while executing '%{cmd}', device returned: %{error}") % { cmd: cmd, error: error }
       end
     end
@@ -59,51 +58,51 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
   def login
     return if transport.handles_login?
     if @url.user != ''
-      transport.command(@url.user, :prompt => /^Password:/)
+      transport.command(@url.user, prompt: %r{^Password:})
     else
-      transport.expect(/^Password:/)
+      transport.expect(%r{^Password:})
     end
     transport.command(@url.password)
   end
 
   def enable
     raise _("Can't issue \"enable\" to enter privileged, no enable password set") unless enable_password
-    transport.command("enable", :prompt => /^Password:/)
+    transport.command('enable', prompt: %r{^Password:})
     transport.command(enable_password)
   end
 
   def support_vlan_brief?
-    !! @support_vlan_brief
+    !!@support_vlan_brief
   end
 
   def find_capabilities
-    out = execute("sh vlan brief")
+    out = execute('sh vlan brief')
     lines = out.split("\n")
     lines.shift; lines.pop
 
-    @support_vlan_brief = ! (lines.first =~ /^%/)
+    @support_vlan_brief = lines.first !~ %r{^%}
   end
 
   IF = {
-    :FastEthernet => %w{FastEthernet FastEth Fast FE Fa F},
-    :GigabitEthernet => %w{GigabitEthernet GigEthernet GigEth GE Gi G},
-    :TenGigabitEthernet => %w{TenGigabitEthernet TE Te},
-    :Ethernet => %w{Ethernet Eth E},
-    :Serial => %w{Serial Se S},
-    :PortChannel => %w{PortChannel Port-Channel Po},
-    :POS => %w{POS P},
-    :VLAN => %w{VLAN VL V},
-    :Loopback => %w{Loopback Loop Lo},
-    :ATM => %w{ATM AT A},
-    :Dialer => %w{Dialer Dial Di D},
-    :VirtualAccess => %w{Virtual-Access Virtual-A Virtual Virt}
-  }
+    FastEthernet: ['FastEthernet', 'FastEth', 'Fast', 'FE', 'Fa', 'F'],
+    GigabitEthernet: ['GigabitEthernet', 'GigEthernet', 'GigEth', 'GE', 'Gi', 'G'],
+    TenGigabitEthernet: ['TenGigabitEthernet', 'TE', 'Te'],
+    Ethernet: ['Ethernet', 'Eth', 'E'],
+    Serial: ['Serial', 'Se', 'S'],
+    PortChannel: ['PortChannel', 'Port-Channel', 'Po'],
+    POS: ['POS', 'P'],
+    VLAN: ['VLAN', 'VL', 'V'],
+    Loopback: ['Loopback', 'Loop', 'Lo'],
+    ATM: ['ATM', 'AT', 'A'],
+    Dialer: ['Dialer', 'Dial', 'Di', 'D'],
+    VirtualAccess: ['Virtual-Access', 'Virtual-A', 'Virtual', 'Virt'],
+  }.freeze
 
   def canonicalize_ifname(interface)
-    IF.each do |k,ifnames|
-      if found = ifnames.find { |ifname| interface =~ /^#{ifname}\s*\d/i }
-        found = /^#{found}(.+)\Z/i.match(interface)
-        return "#{k.to_s}#{found[1]}".gsub(/\s+/,'')
+    IF.each do |k, ifnames|
+      if found = ifnames.find { |ifname| interface =~ %r{^#{ifname}\s*\d}i }
+        found = %r{^#{found}(.+)\Z}i.match(interface)
+        return "#{k}#{found[1]}".gsub(%r{\s+}, '')
       end
     end
     interface
@@ -112,7 +111,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
   def facts
     @facts ||= Puppet::Util::NetworkDevice::Cisco::Facts.new(transport)
     facts = {}
-    command do |ng|
+    command do |_ng|
       facts = @facts.retrieve
     end
     facts
@@ -121,7 +120,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
   def interface(name)
     ifname = canonicalize_ifname(name)
     interface = parse_interface(ifname)
-    return { :ensure => :absent } if interface.empty?
+    return { ensure: :absent } if interface.empty?
     interface.merge!(parse_trunking(ifname))
     interface.merge!(parse_interface_config(ifname))
   end
@@ -136,45 +135,45 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     lines = out.split("\n")
     lines.shift; lines.pop
     lines.each do |l|
-      if l =~ /#{name} is (.+), line protocol is /
-        resource[:ensure] = ($1 == 'up' ? :present : :absent);
+      if l =~ %r{#{name} is (.+), line protocol is }
+        resource[:ensure] = ((Regexp.last_match(1) == 'up') ? :present : :absent)
       end
-      if l =~ /Auto Speed \(.+\),/ or l =~ /Auto Speed ,/ or l =~ /Auto-speed/
+      if l =~ %r{Auto Speed \(.+\),} || l =~ %r{Auto Speed ,} || l =~ %r{Auto-speed}
         resource[:speed] = :auto
       end
       if l =~ /, (.+)Mb\/s/
-        resource[:speed] = $1
+        resource[:speed] = Regexp.last_match(1)
       end
-      if l =~ /\s+Auto-duplex \((.{4})\),/
+      if l =~ %r{\s+Auto-duplex \((.{4})\),}
         resource[:duplex] = :auto
       end
-      if l =~ /\s+(.+)-duplex/
-        resource[:duplex] = $1 == "Auto" ? :auto : $1.downcase.to_sym
+      if l =~ %r{\s+(.+)-duplex}
+        resource[:duplex] = (Regexp.last_match(1) == 'Auto') ? :auto : Regexp.last_match(1).downcase.to_sym
       end
-      if l =~ /Description: (.+)/
-        resource[:description] = $1
+      if l =~ %r{Description: (.+)}
+        resource[:description] = Regexp.last_match(1)
       end
     end
     resource
   end
 
   def parse_interface_config(name)
-    resource = Hash.new { |hash, key| hash[key] = Array.new ; }
+    resource = Hash.new { |hash, key| hash[key] = []; }
     out = execute("sh running-config interface #{name} | begin interface")
     lines = out.split("\n")
     lines.shift; lines.pop
     lines.each do |l|
-      if l =~ /ip address (#{IP}) (#{IP})\s+secondary\s*$/
-        resource[:ipaddress] << [prefix_length(IPAddr.new($2)), IPAddr.new($1), 'secondary']
+      if l =~ %r{ip address (#{IP}) (#{IP})\s+secondary\s*$}
+        resource[:ipaddress] << [prefix_length(IPAddr.new(Regexp.last_match(2))), IPAddr.new(Regexp.last_match(1)), 'secondary']
       end
-      if l =~ /ip address (#{IP}) (#{IP})\s*$/
-        resource[:ipaddress] << [prefix_length(IPAddr.new($2)), IPAddr.new($1), nil]
+      if l =~ %r{ip address (#{IP}) (#{IP})\s*$}
+        resource[:ipaddress] << [prefix_length(IPAddr.new(Regexp.last_match(2))), IPAddr.new(Regexp.last_match(1)), nil]
       end
       if l =~ /ipv6 address (#{IP})\/(\d+) (eui-64|link-local)/
-        resource[:ipaddress] << [$2.to_i, IPAddr.new($1), $3]
+        resource[:ipaddress] << [Regexp.last_match(2).to_i, IPAddr.new(Regexp.last_match(1)), Regexp.last_match(3)]
       end
-      if l =~ /channel-group\s+(\d+)/
-        resource[:etherchannel] = $1
+      if l =~ %r{channel-group\s+(\d+)}
+        resource[:etherchannel] = Regexp.last_match(1)
       end
     end
     resource
@@ -182,25 +181,24 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
 
   def parse_vlans
     vlans = {}
-    out = execute(support_vlan_brief? ? "sh vlan brief" : "sh vlan-switch brief")
+    out = execute(support_vlan_brief? ? 'sh vlan brief' : 'sh vlan-switch brief')
     lines = out.split("\n")
     lines.shift; lines.shift; lines.shift; lines.pop
     vlan = nil
     lines.each do |l|
       case l
-            # vlan    name    status
+      # vlan    name    status
       when /^(\d+)\s+(\w+)\s+(\w+)\s+([a-zA-Z0-9,\/. ]+)\s*$/
-        vlan = { :name => $1, :description => $2, :status => $3, :interfaces => [] }
-        if $4.strip.length > 0
-          vlan[:interfaces] = $4.strip.split(/\s*,\s*/).map{ |ifn| canonicalize_ifname(ifn) }
+        vlan = { name: Regexp.last_match(1), description: Regexp.last_match(2), status: Regexp.last_match(3), interfaces: [] }
+        unless Regexp.last_match(4).strip.empty?
+          vlan[:interfaces] = Regexp.last_match(4).strip.split(%r{\s*,\s*}).map { |ifn| canonicalize_ifname(ifn) }
         end
         vlans[vlan[:name]] = vlan
       when /^\s+([a-zA-Z0-9,\/. ]+)\s*$/
-        raise _("invalid sh vlan summary output") unless vlan
-        if $1.strip.length > 0
-          vlan[:interfaces] += $1.strip.split(/\s*,\s*/).map{ |ifn| canonicalize_ifname(ifn) }
+        raise _('invalid sh vlan summary output') unless vlan
+        unless Regexp.last_match(1).strip.empty?
+          vlan[:interfaces] += Regexp.last_match(1).strip.split(%r{\s*,\s*}).map { |ifn| canonicalize_ifname(ifn) }
         end
-      else
       end
     end
     vlans
@@ -208,29 +206,29 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
 
   def update_vlan(id, is = {}, should = {})
     if should[:ensure] == :absent
-      Puppet.info _("Removing %{id} from device vlan") % { id: id }
-      execute("conf t")
+      Puppet.info _('Removing %{id} from device vlan') % { id: id }
+      execute('conf t')
       execute("no vlan #{id}")
-      execute("exit")
+      execute('exit')
       return
     end
 
     # Cisco VLANs are supposed to be alphanumeric only
-    if should[:description] =~ /[^\w]/
+    if should[:description] =~ %r{[^\w]}
       Puppet.err _("Invalid VLAN name '%{name}' for Cisco device.\nVLAN name must be alphanumeric, no spaces or special characters.") % { name: should[:description] }
       return
     end
-    
+
     # We're creating or updating an entry
-    execute("conf t")
+    execute('conf t')
     execute("vlan #{id}")
     [is.keys, should.keys].flatten.uniq.each do |property|
       Puppet.debug("trying property: #{property}: #{should[property]}")
       next if property != :description
       execute("name #{should[property]}")
     end
-    execute("exit")
-    execute("exit")
+    execute('exit')
+    execute('exit')
   end
 
   def parse_trunking(interface)
@@ -240,46 +238,45 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     lines.shift; lines.pop
     lines.each do |l|
       case l
-      when /^Administrative mode:\s+(.*)$/i
-        case $1
-        when "trunk"
+      when %r{^Administrative mode:\s+(.*)$}i
+        case Regexp.last_match(1)
+        when 'trunk'
           trunking[:mode] = :trunk
-        when "static access"
+        when 'static access'
           trunking[:mode] = :access
-        when "dynamic auto"
+        when 'dynamic auto'
           trunking[:mode] = 'dynamic auto'
-        when "dynamic desirable"
+        when 'dynamic desirable'
           trunking[:mode] = 'dynamic desirable'
         else
-          raise _("Unknown switchport mode: %{mode} for %{interface}") % { mode: $1, interface: interface }
+          raise _('Unknown switchport mode: %{mode} for %{interface}') % { mode: Regexp.last_match(1), interface: interface }
         end
-      when /^Administrative Trunking Encapsulation:\s+(.*)$/
-        case $1
-        when "dot1q","isl"
-          trunking[:encapsulation] = $1.to_sym if trunking[:mode] != :access
-        when "negotiate"
+      when %r{^Administrative Trunking Encapsulation:\s+(.*)$}
+        case Regexp.last_match(1)
+        when 'dot1q', 'isl'
+          trunking[:encapsulation] = Regexp.last_match(1).to_sym if trunking[:mode] != :access
+        when 'negotiate'
           trunking[:encapsulation] = :negotiate
         else
-          raise _("Unknown switchport encapsulation: %{value} for %{interface}") % { value: $1, interface: interface }
+          raise _('Unknown switchport encapsulation: %{value} for %{interface}') % { value: Regexp.last_match(1), interface: interface }
         end
-      when /^Access Mode VLAN:\s+(.*) \((.*)\)$/
-        trunking[:access_vlan] = $1 if $2 != '(Inactive)'
-      when /^Trunking Native Mode VLAN:\s+(.*) \(.*\)$/
-        trunking[:native_vlan] = $1
-      when /^Trunking VLANs Enabled:\s+(.*)$/
+      when %r{^Access Mode VLAN:\s+(.*) \((.*)\)$}
+        trunking[:access_vlan] = Regexp.last_match(1) if Regexp.last_match(2) != '(Inactive)'
+      when %r{^Trunking Native Mode VLAN:\s+(.*) \(.*\)$}
+        trunking[:native_vlan] = Regexp.last_match(1)
+      when %r{^Trunking VLANs Enabled:\s+(.*)$}
         next if trunking[:mode] == :access
-        vlans = $1
+        vlans = Regexp.last_match(1)
         trunking[:allowed_trunk_vlans] = case vlans
-        when /all/i
-          :all
-        when /none/i
-          :none
-        else
-          vlans
+                                         when %r{all}i
+                                           :all
+                                         when %r{none}i
+                                           :none
+                                         else
+                                           vlans
         end
       end
     end
     trunking
   end
-
 end

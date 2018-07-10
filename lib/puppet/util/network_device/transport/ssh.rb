@@ -6,7 +6,6 @@ require 'puppet/util/network_device/transport/base'
 # This is an adaptation/simplification of gem net-ssh-telnet, which aims to have
 # a sane interface to Net::SSH. Credits goes to net-ssh-telnet authors
 class Puppet::Util::NetworkDevice::Transport::Ssh < Puppet::Util::NetworkDevice::Transport::Base
-
   attr_accessor :buf, :ssh, :channel
 
   def initialize(verbose = false)
@@ -22,35 +21,35 @@ class Puppet::Util::NetworkDevice::Transport::Ssh < Puppet::Util::NetworkDevice:
   end
 
   def eof?
-    !! @eof
+    !!@eof
   end
 
   def connect(&block)
     @output = []
-    @channel_data = ""
+    @channel_data = ''
 
     begin
       Puppet.debug("connecting to #{host} as #{user}")
-      @ssh = Net::SSH.start(host, user, :port => port, :password => password, :timeout => timeout)
+      @ssh = Net::SSH.start(host, user, port: port, password: password, timeout: timeout)
     rescue TimeoutError
-      raise TimeoutError, _("timed out while opening an ssh connection to the host"), $!.backtrace
+      raise TimeoutError, _('timed out while opening an ssh connection to the host'), $ERROR_INFO.backtrace
     rescue Net::SSH::AuthenticationFailed
-      raise Puppet::Error, _("SSH authentication failure connecting to %{host} as %{user}") % { host: host, user: user }, $!.backtrace
+      raise Puppet::Error, _('SSH authentication failure connecting to %{host} as %{user}') % { host: host, user: user }, $ERROR_INFO.backtrace
     rescue Net::SSH::Exception
-      raise Puppet::Error, _("SSH connection failure to %{host}") % { host: host }, $!.backtrace
+      raise Puppet::Error, _('SSH connection failure to %{host}') % { host: host }, $ERROR_INFO.backtrace
     end
 
-    @buf = ""
+    @buf = ''
     @eof = false
     @channel = nil
     @ssh.open_channel do |channel|
-      channel.request_pty { |ch,success| raise _("failed to open pty") unless success }
+      channel.request_pty { |_ch, success| raise _('failed to open pty') unless success }
 
-      channel.send_channel_request("shell") do |ch, success|
-        raise _("failed to open ssh shell channel") unless success
+      channel.send_channel_request('shell') do |ch, success|
+        raise _('failed to open ssh shell channel') unless success
 
-        ch.on_data { |_,data| @buf << data }
-        ch.on_extended_data { |_,type,data|  @buf << data if type == 1 }
+        ch.on_data { |_, data| @buf << data }
+        ch.on_extended_data { |_, type, data| @buf << data if type == 1 }
         ch.on_close { @eof = true }
 
         @channel = ch
@@ -61,38 +60,34 @@ class Puppet::Util::NetworkDevice::Transport::Ssh < Puppet::Util::NetworkDevice:
         # for a given call of command.
         return
       end
-
     end
     @ssh.loop
-
   end
 
   def close
-    begin
-      @channel.close if @channel
-      @channel = nil
-      @ssh.close if @ssh
-    rescue IOError
-      Puppet.debug "device terminated ssh session impolitely"
-    end
+    @channel.close if @channel
+    @channel = nil
+    @ssh.close if @ssh
+  rescue IOError
+    Puppet.debug 'device terminated ssh session impolitely'
   end
 
   def expect(prompt)
     line = ''
     sock = @ssh.transport.socket
 
-    while not @eof
-      break if line =~ prompt and @buf == ''
+    until @eof
+      break if line =~ prompt && @buf == ''
       break if sock.closed?
 
-      IO::select([sock], [sock], nil, nil)
+      IO.select([sock], [sock], nil, nil)
 
       process_ssh
 
       # at this point we have accumulated some data in @buf
       # or the channel has been closed
-      if @buf != ""
-        line += @buf.gsub(/\r\n/no, "\n")
+      if @buf != ''
+        line += @buf.gsub(%r{\r\n}no, "\n")
         @buf = ''
         yield line if block_given?
       elsif @eof
@@ -115,7 +110,7 @@ class Puppet::Util::NetworkDevice::Transport::Ssh < Puppet::Util::NetworkDevice:
   end
 
   def process_ssh
-    while @buf == "" and not eof?
+    while @buf == '' && !eof?
       begin
         @channel.connection.process(0.1)
       rescue IOError

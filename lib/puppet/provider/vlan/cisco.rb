@@ -1,8 +1,7 @@
 require 'puppet/provider/cisco'
 
-Puppet::Type.type(:vlan).provide :cisco, :parent => Puppet::Provider::Cisco do
-
-  desc "Cisco switch/router provider for vlans."
+Puppet::Type.type(:vlan).provide :cisco, parent: Puppet::Provider::Cisco do
+  desc 'Cisco switch/router provider for vlans.'
 
   mk_resource_methods
 

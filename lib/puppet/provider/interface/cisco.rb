@@ -1,8 +1,7 @@
 require 'puppet/provider/cisco'
 
-Puppet::Type.type(:interface).provide :cisco, :parent => Puppet::Provider::Cisco do
-
-  desc "Cisco switch/router provider for interface."
+Puppet::Type.type(:interface).provide :cisco, parent: Puppet::Provider::Cisco do
+  desc 'Cisco switch/router provider for interface.'
 
   mk_resource_methods
 

@@ -1,10 +1,9 @@
 #
 # Manage a router abstraction
 
-
 module Puppet
   Type.newtype(:router) do
-    @doc = "Manages connected router."
+    @doc = 'Manages connected router.'
 
     newparam(:url) do
       desc <<-EOT
