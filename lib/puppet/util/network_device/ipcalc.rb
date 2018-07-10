@@ -10,7 +10,7 @@ module Puppet::Util::NetworkDevice::IPCalc
 
   def parse(value)
     case value
-    when /^(#{IP})\/(\d+)$/ # 12.34.56.78/24, a001:b002::efff/120, c444:1000:2000::9:192.168.0.1/112
+    when %r{^(#{IP})\/(\d+)$} # 12.34.56.78/24, a001:b002::efff/120, c444:1000:2000::9:192.168.0.1/112
       [Regexp.last_match(2).to_i, IPAddr.new(Regexp.last_match(1))]
     when %r{^(#{IP})$} # 10.20.30.40,
       value = IPAddr.new(value)

@@ -27,7 +27,7 @@ class Puppet::Util::NetworkDevice::Cisco::Facts
       # Cisco 877 (MPC8272) processor (revision 0x200) with 118784K/12288K bytes of memory.
       # cisco WS-C2960G-48TC-L (PowerPC405) processor (revision C0) with 61440K/4088K bytes of memory.
       # cisco WS-C2950T-24 (RC32300) processor (revision R0) with 19959K bytes of memory.
-      when /[cC]isco ([\w-]+) (?:\(([\w-]+)\) processor )?\(revision (.+)\) with (\d+[KMG])(?:\/(\d+[KMG]))? bytes of memory\./
+      when %r{[cC]isco ([\w-]+) (?:\(([\w-]+)\) processor )?\(revision (.+)\) with (\d+[KMG])(?:\/(\d+[KMG]))? bytes of memory\.}
         facts[:hardwaremodel] = Regexp.last_match(1)
         facts[:processor] = Regexp.last_match(2) if Regexp.last_match(2)
         facts[:hardwarerevision] = Regexp.last_match(3)
