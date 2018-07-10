@@ -77,7 +77,8 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
   def find_capabilities
     out = execute('sh vlan brief')
     lines = out.split("\n")
-    lines.shift; lines.pop
+    lines.shift
+    lines.pop
 
     @support_vlan_brief = lines.first !~ %r{^%}
   end
@@ -133,7 +134,8 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     resource = {}
     out = execute("sh interface #{name}")
     lines = out.split("\n")
-    lines.shift; lines.pop
+    lines.shift
+    lines.pop
     lines.each do |l|
       if l =~ %r{#{name} is (.+), line protocol is }
         resource[:ensure] = ((Regexp.last_match(1) == 'up') ? :present : :absent)
@@ -161,7 +163,8 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     resource = Hash.new { |hash, key| hash[key] = []; }
     out = execute("sh running-config interface #{name} | begin interface")
     lines = out.split("\n")
-    lines.shift; lines.pop
+    lines.shift
+    lines.pop
     lines.each do |l|
       if l =~ %r{ip address (#{IP}) (#{IP})\s+secondary\s*$}
         resource[:ipaddress] << [prefix_length(IPAddr.new(Regexp.last_match(2))), IPAddr.new(Regexp.last_match(1)), 'secondary']
@@ -183,7 +186,10 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     vlans = {}
     out = execute(support_vlan_brief? ? 'sh vlan brief' : 'sh vlan-switch brief')
     lines = out.split("\n")
-    lines.shift; lines.shift; lines.shift; lines.pop
+    lines.shift
+    lines.shift
+    lines.shift
+    lines.pop
     vlan = nil
     lines.each do |l|
       case l
@@ -235,7 +241,8 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     trunking = {}
     out = execute("sh interface #{interface} switchport")
     lines = out.split("\n")
-    lines.shift; lines.pop
+    lines.shift
+    lines.pop
     lines.each do |l|
       case l
       when %r{^Administrative mode:\s+(.*)$}i

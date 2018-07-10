@@ -19,7 +19,8 @@ class Puppet::Util::NetworkDevice::Cisco::Facts
     facts = {}
     out = @transport.command('sh ver')
     lines = out.split("\n")
-    lines.shift; lines.pop
+    lines.shift
+    lines.pop
     lines.each do |l|
       case l
       # cisco WS-C2924C-XL (PowerPC403GA) processor (revision 0x11) with 8192K/1024K bytes of memory.
