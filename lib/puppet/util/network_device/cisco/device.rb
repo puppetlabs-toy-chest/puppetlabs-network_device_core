@@ -281,7 +281,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
                                            :none
                                          else
                                            vlans
-        end
+                                         end
       end
     end
     trunking
