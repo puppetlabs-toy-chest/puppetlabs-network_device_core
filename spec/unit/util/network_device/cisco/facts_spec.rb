@@ -23,36 +23,24 @@ describe Puppet::Util::NetworkDevice::Cisco::Facts do
     'cisco WS-C2950T-24 (RC32300) processor (revision R0) with 19959K bytes of memory.' => {
       hardwaremodel: 'WS-C2950T-24', memorysize: '19959K', processor: 'RC32300', hardwarerevision: 'R0'
     },
-  }.each do |ver, expected|
-    it 'parses show ver output for hardware device facts' do
-      transport.stubs(:command).with('sh ver').returns(<<eos)
-Switch>sh ver
-#{ver}
-Switch>
-eos
-      expect(facts.parse_show_ver).to eq(expected)
-    end
-  end
-
-  {
-    'Switch uptime is 1 year, 12 weeks, 6 days, 22 hours, 32 minutes' => { hostname: 'Switch', uptime: '1 year, 12 weeks, 6 days, 22 hours, 32 minutes', uptime_seconds: 39_393_120, uptime_days: 455 },
-    'c2950 uptime is 3 weeks, 1 day, 23 hours, 36 minutes' => { hostname: 'c2950', uptime: '3 weeks, 1 day, 23 hours, 36 minutes', uptime_days: 22, uptime_seconds: 1_985_760 },
-    'router uptime is 5 weeks, 1 day, 3 hours, 30 minutes' => { hostname: 'router', uptime: '5 weeks, 1 day, 3 hours, 30 minutes', uptime_days: 36, uptime_seconds: 3_123_000 },
-    'c2950 uptime is 1 minute' => { hostname: 'c2950', uptime: '1 minute', uptime_days: 0, uptime_seconds: 60 },
-    'c2950 uptime is 20 weeks, 6 minutes' => { hostname: 'c2950', uptime: '20 weeks, 6 minutes', uptime_seconds: 12_096_360, uptime_days: 140 },
-    'c2950 uptime is 2 years, 20 weeks, 6 minutes' => { hostname: 'c2950', uptime: '2 years, 20 weeks, 6 minutes', uptime_seconds: 75_168_360, uptime_days: 870 },
-  }.each do |ver, expected|
-    it 'parses show ver output for device uptime facts' do
-      transport.stubs(:command).with('sh ver').returns(<<eos)
-Switch>sh ver
-#{ver}
-Switch>
-eos
-      expect(facts.parse_show_ver).to eq(expected)
-    end
-  end
-
-  {
+    'Switch uptime is 1 year, 12 weeks, 6 days, 22 hours, 32 minutes' => {
+      hostname: 'Switch', uptime: '1 year, 12 weeks, 6 days, 22 hours, 32 minutes', uptime_seconds: 39_393_120, uptime_days: 455
+    },
+    'c2950 uptime is 3 weeks, 1 day, 23 hours, 36 minutes' => {
+      hostname: 'c2950', uptime: '3 weeks, 1 day, 23 hours, 36 minutes', uptime_days: 22, uptime_seconds: 1_985_760
+    },
+    'router uptime is 5 weeks, 1 day, 3 hours, 30 minutes' => {
+      hostname: 'router', uptime: '5 weeks, 1 day, 3 hours, 30 minutes', uptime_days: 36, uptime_seconds: 3_123_000
+    },
+    'c2950 uptime is 1 minute' => {
+      hostname: 'c2950', uptime: '1 minute', uptime_days: 0, uptime_seconds: 60
+    },
+    'c2950 uptime is 20 weeks, 6 minutes' => {
+      hostname: 'c2950', uptime: '20 weeks, 6 minutes', uptime_seconds: 12_096_360, uptime_days: 140
+    },
+    'c2950 uptime is 2 years, 20 weeks, 6 minutes' => {
+      hostname: 'c2950', uptime: '2 years, 20 weeks, 6 minutes', uptime_seconds: 75_168_360, uptime_days: 870
+    },
     'IOS (tm) C2900XL Software (C2900XL-C3H2S-M), Version 12.0(5)WC10, RELEASE SOFTWARE (fc1)' => {
       operatingsystem: 'IOS', operatingsystemrelease: '12.0(5)WC10', operatingsystemmajrelease: '12.0WC', operatingsystemfeature: 'C3H2S'
     },
@@ -69,7 +57,7 @@ eos
       operatingsystem: 'IOS', operatingsystemrelease: '12.4(24)T4', operatingsystemmajrelease: '12.4T', operatingsystemfeature: 'ADVSECURITYK9'
     },
   }.each do |ver, expected|
-    it 'parses show ver output for device software version facts' do
+    it 'parses show ver output for device facts' do
       transport.stubs(:command).with('sh ver').returns(<<eos)
 Switch>sh ver
 #{ver}
