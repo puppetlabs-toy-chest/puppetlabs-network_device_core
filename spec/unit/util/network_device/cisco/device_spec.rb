@@ -443,8 +443,8 @@ end
 router#
 eos
         expect(cisco.parse_interface_config('Vlan 1')).to eq(ipaddress: [[24, IPAddr.new('192.168.0.24'), 'secondary'],
-                                                                          [24, IPAddr.new('192.168.0.1'), nil],
-                                                                          [64, IPAddr.new('2001:07a8:71c1::'), 'eui-64']])
+                                                                         [24, IPAddr.new('192.168.0.1'), nil],
+                                                                         [64, IPAddr.new('2001:07a8:71c1::'), 'eui-64']])
       end
 
       it 'parses etherchannel membership' do
