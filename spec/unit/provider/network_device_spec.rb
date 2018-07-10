@@ -29,6 +29,7 @@ describe provider_class do
   describe 'when prefetching' do
     let(:resource) { stub_everything 'resource' }
     let(:resources) { { '200' => resource } }
+
     before(:each) do
       provider_class.stubs(:lookup)
     end
@@ -66,6 +67,7 @@ describe provider_class do
     describe 'with a hash' do
       let(:resource_class) { mock 'resource_class' }
       let(:property_class) { stub 'property_class', array_matching: :all, superclass: Puppet::Property }
+
       before(:each) do
         provider_class.stubs(:resource_type).returns resource_class
 
@@ -84,6 +86,7 @@ describe provider_class do
     let(:instance) { provider_class.new(:device) }
     let(:property_class) { stub 'property_class', array_matching: :all, superclass: Puppet::Property }
     let(:resource_class) { stub 'resource_class', attrclass: property_class, valid_parameter?: true, validproperties: [:description] }
+
     before(:each) do
       provider_class.stubs(:resource_type).returns resource_class
     end
@@ -117,6 +120,7 @@ describe provider_class do
     describe 'is being created' do
       let(:rclass) { mock 'resource_class' }
       let(:resource) { stub_everything 'resource' }
+
       before(:each) do
         rclass.stubs(:validproperties).returns([:description])
         resource.stubs(:class).returns rclass
