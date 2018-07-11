@@ -270,6 +270,7 @@ eos
 
       it 'is able to parse the sh vlan brief command output' do
         cisco.stubs(:support_vlan_brief?).returns(true)
+        # rubocop:disable Layout/TrailingWhitespace
         transport.stubs(:command).with('sh vlan brief').returns(<<eos)
 Switch#sh vlan brief
 VLAN Name                             Status    Ports
@@ -279,10 +280,11 @@ VLAN Name                             Status    Ports
                                                 Fa0/11, Fa0/12, Fa0/13, Fa0/14,
                                                 Fa0/15, Fa0/16, Fa0/17, Fa0/18,
                                                 Fa0/23, Fa0/24
-10   VLAN0010                         active
+10   VLAN0010                         active    
 100  management                       active    Fa0/1, Fa0/2
 Switch#
 eos
+        # rubocop:enable Layout/TrailingWhitespace
 
         expect(cisco.parse_vlans).to eq(
           '100' => {

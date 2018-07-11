@@ -176,11 +176,11 @@ describe Puppet::Util::NetworkDevice::Transport::Ssh, if: Puppet.features.ssh? d
   describe 'when expecting output' do
     let(:connection) { stub_everything 'connection' }
     let(:socket) { stub_everything 'socket' }
-    let(:transport) { stub 'transport', socket: socket }
     let(:ssh) { stub_everything 'ssh', transport: transport }
     let(:channel) { stub_everything 'channel', connection: connection }
 
     before(:each) do
+      transport.stubs(:socket).returns(socket)
       transport.ssh = ssh
       transport.channel = channel
     end
