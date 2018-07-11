@@ -3,3 +3,8 @@ appveyor.yml:
 
 .gitlab-ci.yml:
   delete: true
+
+.rubocop.yml:
+  default_configs:
+    RSpec/FilePath:
+      Enabled: false
