@@ -55,17 +55,17 @@ if Puppet.features.telnet?
       describe 'when expecting output' do
         it 'waitfors output on the telnet session' do
           telnet.expects(:waitfor).with(%r{regex})
-          transport.expect(%r{regex})
+          transport.expect(%r{regex}) # rubocop:disable RSpec/ExpectActual
         end
 
         it 'returns telnet session output' do
           telnet.expects(:waitfor).returns('output')
-          expect(transport.expect(%r{regex})).to eq('output')
+          expect(transport.expect(%r{regex})).to eq('output') # rubocop:disable RSpec/ExpectActual
         end
 
         it 'yields telnet session output to the given block' do
           telnet.expects(:waitfor).yields('output')
-          transport.expect(%r{regex}) { |out| expect(out).to eq('output') }
+          transport.expect(%r{regex}) { |out| expect(out).to eq('output') } # rubocop:disable RSpec/ExpectActual
         end
       end
     end

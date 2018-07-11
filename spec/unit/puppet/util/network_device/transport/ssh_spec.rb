@@ -189,14 +189,14 @@ describe Puppet::Util::NetworkDevice::Transport::Ssh, if: Puppet.features.ssh? d
       IO.stubs(:select)
       transport.buf = 'output'
       transport.expects(:process_ssh)
-      transport.expect(%r{output})
+      transport.expect(%r{output}) # rubocop:disable RSpec/ExpectActual
     end
 
     it 'returns the output' do
       IO.stubs(:select)
       transport.buf = 'output'
       transport.stubs(:process_ssh)
-      expect(transport.expect(%r{output})).to eq('output')
+      expect(transport.expect(%r{output})).to eq('output') # rubocop:disable RSpec/ExpectActual
     end
 
     describe 'when processing the ssh loop' do
