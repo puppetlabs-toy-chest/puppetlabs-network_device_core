@@ -1,10 +1,12 @@
 {
   "name": "puppetlabs-network_device_core",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "author": "Puppet Labs",
-  "summary": "",
+  "summary": "Manage aspects of a router or switch",
   "license": "Apache-2.0",
-  "source": "",
+  "source": "https://github.com/puppetlabs/puppetlabs-network_device_core",
+  "project_page": "https://github.com/puppetlabs/puppetlabs-network_device_core/blob/master/README.md",
+  "issues_url": "https://tickets.puppetlabs.com/projects/MODULES",
   "dependencies": [
 
   ],
