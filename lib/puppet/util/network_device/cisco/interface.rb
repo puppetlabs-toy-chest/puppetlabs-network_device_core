@@ -26,8 +26,11 @@ class Puppet::Util::NetworkDevice::Cisco::Interface
     etherchannel: [9, ['channel-group %s', 'port group %s']],
     ipaddress: [10,
                 ->(prefix, ip, option) do
-                  ip.ipv6? ? "ipv6 address #{ip}/#{prefix} #{option}" :
-                             "ip address #{ip} #{netmask(Socket::AF_INET, prefix)}"
+                  if ip.ipv6?
+                    "ipv6 address #{ip}/#{prefix} #{option}"
+                  else
+                    "ip address #{ip} #{netmask(Socket::AF_INET, prefix)}"
+                  end
                 end],
     ensure: [11, ->(value) { (value == :present) ? 'no shutdown' : 'shutdown' }],
   }.freeze
