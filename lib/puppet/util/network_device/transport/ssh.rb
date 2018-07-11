@@ -93,10 +93,8 @@ class Puppet::Util::NetworkDevice::Transport::Ssh < Puppet::Util::NetworkDevice:
       elsif @eof
         # channel has been closed
         break if line =~ prompt
-        if line == ''
-          line = nil
-          yield nil if block_given?
-        end
+        line = nil if line == ''
+        yield nil if block_given? && line.nil?
         break
       end
     end
