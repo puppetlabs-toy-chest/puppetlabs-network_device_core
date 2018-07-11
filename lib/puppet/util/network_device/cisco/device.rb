@@ -71,7 +71,11 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
   end
 
   def support_vlan_brief?
-    !!@support_vlan_brief
+    if [true, false].include? @support_vlan_brief
+      @support_vlan_brief
+    else
+      !@support_vlan_brief.nil?
+    end
   end
 
   def find_capabilities

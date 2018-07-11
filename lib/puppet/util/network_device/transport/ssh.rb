@@ -19,7 +19,11 @@ class Puppet::Util::NetworkDevice::Transport::Ssh < Puppet::Util::NetworkDevice:
   end
 
   def eof?
-    !!@eof
+    if [true, false].include? @eof
+      @eof
+    else
+      !@eof.nil?
+    end
   end
 
   def connect(&block)
