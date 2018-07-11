@@ -44,7 +44,7 @@ module Puppet::Util::NetworkDevice::IPCalc
   # returns ip address prefix length from netmask
   def prefix_length(netmask)
     mask_addr = netmask.to_i
-    return 0 if mask_addr == 0
+    return 0 if mask_addr.zero?
     length = 32
     if netmask.ipv6?
       length = 128
