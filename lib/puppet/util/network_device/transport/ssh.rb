@@ -56,7 +56,9 @@ class Puppet::Util::NetworkDevice::Transport::Ssh < Puppet::Util::NetworkDevice:
         # the ssh loop there while still having the ssh connection up
         # otherwise we wouldn't be able to return ssh stdout/stderr
         # for a given call of command.
+        # rubocop:disable Lint/NonLocalExitFromIterator
         return
+        # rubocop:enable Lint/NonLocalExitFromIterator
       end
     end
     @ssh.loop
