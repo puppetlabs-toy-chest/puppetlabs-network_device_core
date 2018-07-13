@@ -147,7 +147,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
       if l =~ %r{Auto Speed \(.+\),} || l =~ %r{Auto Speed ,} || l =~ %r{Auto-speed}
         resource[:speed] = :auto
       end
-      if l =~ %r{, (.+)Mb\/s}
+      if l =~ %r{, (.+)Mb/s}
         resource[:speed] = Regexp.last_match(1)
       end
       if l =~ %r{\s+Auto-duplex \((.{4})\),}
@@ -176,7 +176,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
       if l =~ %r{ip address (#{IP}) (#{IP})\s*$}
         resource[:ipaddress] << [prefix_length(IPAddr.new(Regexp.last_match(2))), IPAddr.new(Regexp.last_match(1)), nil]
       end
-      if l =~ %r{ipv6 address (#{IP})\/(\d+) (eui-64|link-local)}
+      if l =~ %r{ipv6 address (#{IP})/(\d+) (eui-64|link-local)}
         resource[:ipaddress] << [Regexp.last_match(2).to_i, IPAddr.new(Regexp.last_match(1)), Regexp.last_match(3)]
       end
       if l =~ %r{channel-group\s+(\d+)}
@@ -198,13 +198,13 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     lines.each do |l|
       case l
       # vlan    name    status
-      when %r{^(\d+)\s+(\w+)\s+(\w+)\s+([a-zA-Z0-9,\/. ]+)\s*$}
+      when %r{^(\d+)\s+(\w+)\s+(\w+)\s+([a-zA-Z0-9,/. ]+)\s*$}
         vlan = { name: Regexp.last_match(1), description: Regexp.last_match(2), status: Regexp.last_match(3), interfaces: [] }
         unless Regexp.last_match(4).strip.empty?
           vlan[:interfaces] = Regexp.last_match(4).strip.split(%r{\s*,\s*}).map { |ifn| canonicalize_ifname(ifn) }
         end
         vlans[vlan[:name]] = vlan
-      when %r{^\s+([a-zA-Z0-9,\/. ]+)\s*$}
+      when %r{^\s+([a-zA-Z0-9,/. ]+)\s*$}
         raise _('invalid sh vlan summary output') unless vlan
         unless Regexp.last_match(1).strip.empty?
           vlan[:interfaces] += Regexp.last_match(1).strip.split(%r{\s*,\s*}).map { |ifn| canonicalize_ifname(ifn) }
