@@ -12,17 +12,20 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
 
   attr_accessor :enable_password
 
+  # Create a new
   def initialize(url, options = {})
     super(url, options)
     @enable_password = options[:enable_password] || parse_enable(@url.query)
     transport.default_prompt = %r{[#>]\s?\z}n
   end
 
+  # Parse the `enable` parameter
   def parse_enable(query)
     params = CGI.parse(query) if query
     params['enable'].first unless params.nil? || params['enable'].empty?
   end
 
+  # Connect to the transport
   def connect
     transport.connect
     login
@@ -32,10 +35,12 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     find_capabilities
   end
 
+  # Close the connection
   def disconnect
     transport.close
   end
 
+  # Execute command and return the resulting output
   def command(cmd = nil)
     connect
     out = execute(cmd) if cmd
@@ -44,6 +49,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     out
   end
 
+  # Execute the command
   def execute(cmd)
     transport.command(cmd) do |out|
       if out =~ %r{^%}mo || out =~ %r{^Command rejected:}mo
@@ -54,6 +60,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     end
   end
 
+  # Login to the transport
   def login
     return if transport.handles_login?
     if @url.user != ''
@@ -64,12 +71,14 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     transport.command(@url.password)
   end
 
+  # Enable the transport
   def enable
     raise _("Can't issue \"enable\" to enter privileged, no enable password set") unless enable_password
     transport.command('enable', prompt: %r{^Password:})
     transport.command(enable_password)
   end
 
+  # Return if the vlan brief is supported
   def support_vlan_brief?
     if [true, false].include? @support_vlan_brief
       @support_vlan_brief
@@ -78,6 +87,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     end
   end
 
+  # Find if vlan brief is supported
   def find_capabilities
     out = execute('sh vlan brief')
     lines = out.split("\n")
@@ -87,6 +97,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     @support_vlan_brief = lines.first !~ %r{^%}
   end
 
+  # ifnames for each interface type
   IF = {
     FastEthernet: ['FastEthernet', 'FastEth', 'Fast', 'FE', 'Fa', 'F'],
     GigabitEthernet: ['GigabitEthernet', 'GigEthernet', 'GigEth', 'GE', 'Gi', 'G'],
@@ -102,6 +113,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     VirtualAccess: ['Virtual-Access', 'Virtual-A', 'Virtual', 'Virt'],
   }.freeze
 
+  # Canonicalize ifnames
   def canonicalize_ifname(interface)
     IF.each do |k, ifnames|
       found = ifnames.find { |ifname| interface =~ %r{^#{ifname}\s*\d}i }
@@ -113,6 +125,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     interface
   end
 
+  # Return facts for the given transport
   def facts
     @facts ||= Puppet::Util::NetworkDevice::Cisco::Facts.new(transport)
     facts = {}
@@ -122,6 +135,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     facts
   end
 
+  # Check if the interface is enabled
   def interface(name)
     ifname = canonicalize_ifname(name)
     interface = parse_interface(ifname)
@@ -130,10 +144,12 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     interface.merge!(parse_interface_config(ifname))
   end
 
+  # Create a new interface
   def new_interface(name)
     Puppet::Util::NetworkDevice::Cisco::Interface.new(canonicalize_ifname(name), transport)
   end
 
+  # Parse interface name
   def parse_interface(name)
     resource = {}
     out = execute("sh interface #{name}")
@@ -163,6 +179,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     resource
   end
 
+  # Parse interface configg
   def parse_interface_config(name)
     resource = Hash.new { |hash, key| hash[key] = []; }
     out = execute("sh running-config interface #{name} | begin interface")
@@ -186,6 +203,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     resource
   end
 
+  # Parse vlans
   def parse_vlans
     vlans = {}
     out = execute(support_vlan_brief? ? 'sh vlan brief' : 'sh vlan-switch brief')
@@ -214,6 +232,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     vlans
   end
 
+  # Update vlan
   def update_vlan(id, is = {}, should = {})
     if should[:ensure] == :absent
       Puppet.info _('Removing %{id} from device vlan') % { id: id }
@@ -241,6 +260,7 @@ class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::
     execute('exit')
   end
 
+  # Parse trunking
   def parse_trunking(interface)
     trunking = {}
     out = execute("sh interface #{interface} switchport")

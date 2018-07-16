@@ -10,11 +10,13 @@ class Puppet::Util::NetworkDevice::Cisco::Facts
     @transport = transport
   end
 
+  # Retrieve facts
   def retrieve
     facts = {}
     facts.merge(parse_show_ver)
   end
 
+  # Parse output from `ver`
   def parse_show_ver
     facts = {}
     out = @transport.command('sh ver')
@@ -63,10 +65,12 @@ class Puppet::Util::NetworkDevice::Cisco::Facts
     facts
   end
 
+  # Return the major version of the iso
   def ios_major_version(version)
     version.gsub(%r{^(\d+)\.(\d+)\(.+\)([A-Z]+)([\da-z]+)?}, '\1.\2\3')
   end
 
+  # Convert uptime to seconds
   def uptime_to_seconds(uptime)
     captures = uptime.match(%r{^(?:(\d+) years?,)?\s*(?:(\d+) weeks?,)?\s*(?:(\d+) days?,)?\s*(?:(\d+) hours?,)?\s*(\d+) minutes?$}).captures
     captures.zip([31_536_000, 604_800, 86_400, 3600, 60]).reduce(0) do |total, (x, y)|

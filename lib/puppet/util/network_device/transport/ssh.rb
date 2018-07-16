@@ -14,10 +14,12 @@ class Puppet::Util::NetworkDevice::Transport::Ssh < Puppet::Util::NetworkDevice:
     raise _('Connecting with ssh to a network device requires the \'net/ssh\' ruby library') unless Puppet.features.ssh?
   end
 
+  # returns true
   def handles_login?
     true
   end
 
+  # Returns if we have reached the end of file
   def eof?
     if [true, false].include? @eof
       @eof
@@ -26,6 +28,7 @@ class Puppet::Util::NetworkDevice::Transport::Ssh < Puppet::Util::NetworkDevice:
     end
   end
 
+  # Opens an ssh connection
   def connect(&block)
     @output = []
     @channel_data = ''
@@ -68,6 +71,7 @@ class Puppet::Util::NetworkDevice::Transport::Ssh < Puppet::Util::NetworkDevice:
     @ssh.loop
   end
 
+  # Closes ssh connection
   def close
     @channel.close if @channel
     @channel = nil
@@ -76,6 +80,7 @@ class Puppet::Util::NetworkDevice::Transport::Ssh < Puppet::Util::NetworkDevice:
     Puppet.debug 'device terminated ssh session impolitely'
   end
 
+  # expect a return from ssh connection
   def expect(prompt)
     line = ''
     sock = @ssh.transport.socket
@@ -106,11 +111,13 @@ class Puppet::Util::NetworkDevice::Transport::Ssh < Puppet::Util::NetworkDevice:
     line
   end
 
+  # Send data over ssh connection
   def send(line)
     Puppet.debug("ssh: send #{line}") if @verbose
     @channel.send_data(line + "\n")
   end
 
+  # Process ssh connection
   def process_ssh
     while @buf == '' && !eof?
       begin

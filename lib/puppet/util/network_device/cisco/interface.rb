@@ -13,6 +13,7 @@ class Puppet::Util::NetworkDevice::Cisco::Interface
     @transport = transport
   end
 
+  # Static interface commands
   COMMANDS = {
     # property     => order, ios command/block/array
     description: [1, 'description %s'],
@@ -35,6 +36,7 @@ class Puppet::Util::NetworkDevice::Cisco::Interface
     ensure: [11, ->(value) { (value == :present) ? 'no shutdown' : 'shutdown' }],
   }.freeze
 
+  # Update the specific interface
   def update(is = {}, should = {})
     Puppet.debug("Updating interface #{name}")
     command('conf t')
@@ -66,6 +68,7 @@ class Puppet::Util::NetworkDevice::Cisco::Interface
     command('exit')
   end
 
+  # Execute the command associated with the passed in property
   def execute(property, value, prefix = '')
     case COMMANDS[property][1]
     when Array
@@ -84,6 +87,7 @@ class Puppet::Util::NetworkDevice::Cisco::Interface
     end
   end
 
+  # Execute the given command
   def command(command)
     transport.command(command) do |out|
       if out =~ %r{^%}mo || out =~ %r{^Command rejected:}mo
