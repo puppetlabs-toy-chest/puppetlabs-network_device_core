@@ -2,7 +2,7 @@
 # Manages an interface on a given router or switch
 #
 
-require 'puppet/util/network_device/ipcalc'
+require_relative '../util/network_device/ipcalc'
 
 Puppet::Type.newtype(:interface) do
   @doc = "This represents a router or switch interface. It is possible to manage

@@ -1,4 +1,4 @@
-require 'puppet/provider/cisco'
+require_relative '../cisco'
 
 Puppet::Type.type(:interface).provide :cisco, parent: Puppet::Provider::Cisco do
   desc 'Cisco switch/router provider for interface.'

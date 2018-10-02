@@ -1,4 +1,4 @@
-require 'puppet/util/network_device/cisco/device'
+require_relative '../util/network_device/cisco/device'
 require 'puppet/provider/network_device'
 
 # This is the base class of all prefetched cisco device providers

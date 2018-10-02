@@ -1,10 +1,11 @@
+require 'ipaddr'
 require 'puppet'
 require 'puppet/util'
 require 'puppet/util/network_device/base'
-require 'puppet/util/network_device/ipcalc'
-require 'puppet/util/network_device/cisco/interface'
-require 'puppet/util/network_device/cisco/facts'
-require 'ipaddr'
+
+require_relative '../ipcalc'
+require_relative './interface'
+require_relative './facts'
 
 # Cisco Device
 class Puppet::Util::NetworkDevice::Cisco::Device < Puppet::Util::NetworkDevice::Base
