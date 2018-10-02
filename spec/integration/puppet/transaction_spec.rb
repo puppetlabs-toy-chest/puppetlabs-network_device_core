@@ -12,7 +12,7 @@ describe Puppet::Transaction do
     resource = Puppet::Type.type(:interface).new name: 'FastEthernet 0/1'
     catalog.add_resource resource
 
-    transaction = described_class.new(catalog, nil, Puppet::Graph::RandomPrioritizer.new)
+    transaction = described_class.new(catalog, nil, Puppet::Graph::SequentialPrioritizer.new)
     transaction.for_network_device = false
 
     transaction.expects(:apply).never.with(resource, nil)
@@ -26,7 +26,7 @@ describe Puppet::Transaction do
     resource = Puppet::Type.type(:interface).new name: 'FastEthernet 0/1'
     catalog.add_resource resource
 
-    transaction = described_class.new(catalog, nil, Puppet::Graph::RandomPrioritizer.new)
+    transaction = described_class.new(catalog, nil, Puppet::Graph::SequentialPrioritizer.new)
     transaction.for_network_device = true
 
     transaction.expects(:apply).with(resource, nil)

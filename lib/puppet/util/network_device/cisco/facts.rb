@@ -1,6 +1,6 @@
 
-require 'puppet/util/network_device/cisco'
-require 'puppet/util/network_device/ipcalc'
+require_relative '../cisco'
+require_relative '../ipcalc'
 
 # this retrieves facts from a cisco device
 class Puppet::Util::NetworkDevice::Cisco::Facts

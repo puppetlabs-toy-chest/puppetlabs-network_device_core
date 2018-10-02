@@ -1,5 +1,5 @@
-require 'puppet/util/network_device/cisco'
-require 'puppet/util/network_device/ipcalc'
+require_relative '../cisco'
+require_relative '../ipcalc'
 
 # this manages setting properties to an interface in a cisco switch or router
 class Puppet::Util::NetworkDevice::Cisco::Interface
