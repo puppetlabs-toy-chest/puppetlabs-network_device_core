@@ -3,8 +3,16 @@ require 'spec_helper'
 require 'puppet/transaction'
 
 describe Puppet::Transaction do
+  let(:vardir) { Dir.mktmpdir }
+
   before(:each) do
+    Puppet[:vardir] = vardir
+    FileUtils.mkdir_p(Puppet[:statedir])
     Puppet::Util::Storage.stubs(:store)
+  end
+
+  after(:each) do
+    FileUtils.rm_rf(vardir)
   end
 
   it 'does not apply device resources on normal host' do
