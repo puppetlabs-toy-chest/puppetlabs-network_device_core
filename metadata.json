@@ -1,6 +1,6 @@
 {
   "name": "puppetlabs-network_device_core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Puppet Labs",
   "summary": "Manage aspects of a router or switch",
   "license": "Apache-2.0",
